@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WaveSurfer.js Recording</title>
+    <style>
+      * {
+        scroll-behavior: smooth;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        overflow: hidden;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-color: #eef0f17f;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      #mic {
+        width: 90%;
+        height: 150px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mic"></div>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.7.15/wavesurfer.min.js"
+      integrity="sha512-0zR0E1NB6jaFuUEh3NXPy5iVeBqVfT+6xrpHziR5W8YN5rQnN57rviT5DQ7bqIOgjpPnEtYd1+8ouVBDcyDRhQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.7.15/plugins/record.min.js"
+      integrity="sha512-FxgycQL7Cu+8ewKK+Mm+lC9+87yBWFg6NJAxBtjuWi04Ve/KxqYWcPdgZSV1D3++debGAnh7+6bW+gvTo0R8bA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script>
+      let wavesurfer, record;
+      const createWaveSurfer = () => {
+        if (wavesurfer) {
+          wavesurfer.destroy();
+        }
+        wavesurfer = WaveSurfer.create({
+          container: "#mic",
+          waveColor: "#20AC96",
+          backgroundColor: "#eef0f17f",
+          progressColor: "transparent",
+          cursorColor: "transparent",
+          barWidth: 3,
+          barRadius: 3,
+          barGap: 2,
+        });
+        record = wavesurfer.registerPlugin(
+          WaveSurfer.Record.create({
+            scrollingWaveform: false,
+            renderRecordedAudio: false,
+          })
+        );
+      };
+      window.pauseRecording = () => {
+        if (record.isPaused()) {
+          record.resumeRecording();
+          pauseButton.textContent = "Pause";
+          return;
+        }
+        record.pauseRecording();
+      };
+      let micSelect;
+      WaveSurfer.Record.getAvailableAudioDevices().then((devices) => {
+        micSelect = devices[0].deviceId;
+      });
+      window.stopRecording = () => {
+        if (record.isRecording() || record.isPaused()) {
+          record.stopRecording();
+        }
+      };
+      window.startRecording = () => {
+        record.startRecording();
+      };
+      document.addEventListener("DOMContentLoaded", () => {
+        createWaveSurfer();
+        window.startRecording();
+      });
+      function receiveMessage(message) {
+        if (message === "start") {
+          window.startRecording();
+        } else if (message === "stop") {
+          window.stopRecording();
+        } else if (message === "pause") {
+          window.pauseRecording();
+        }
+      }
+    </script>
+  </body>
+</html>

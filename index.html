@@ -68,37 +68,38 @@
           })
         );
       };
-      window.pauseRecording = () => {
+      function startRecording() {
+        record.startRecording();
+        document.getElementById("mic").style.display = "block";
+      }
+      function pauseRecording() {
+        if (record.isRecording()) {
+          record.pauseRecording();
+        }
+      }
+      function resumeRecording() {
         if (record.isPaused()) {
           record.resumeRecording();
-          pauseButton.textContent = "Pause";
-          return;
         }
-        record.pauseRecording();
-      };
-      let micSelect;
-      WaveSurfer.Record.getAvailableAudioDevices().then((devices) => {
-        micSelect = devices[0].deviceId;
-      });
-      window.stopRecording = () => {
+      }
+      function stopRecording() {
         if (record.isRecording() || record.isPaused()) {
           record.stopRecording();
+          document.getElementById("mic").style.display = "none";
         }
-      };
-      window.startRecording = () => {
-        record.startRecording();
-      };
+      }
       document.addEventListener("DOMContentLoaded", () => {
         createWaveSurfer();
-        window.startRecording();
       });
       function receiveMessage(message) {
         if (message === "start") {
-          window.startRecording();
+          startRecording();
         } else if (message === "stop") {
-          window.stopRecording();
+          stopRecording();
         } else if (message === "pause") {
-          window.pauseRecording();
+          pauseRecording();
+        } else if (message === "resume") {
+          resumeRecording();
         }
       }
     </script>
